@@ -1,0 +1,25 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #000; /* Pozadina chata */
+    color: #fff; /* Boja teksta */
+}
+
+#chat {
+    width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    border: 1px solid #fff; /* Okvir chata */
+}
+
+#guestList {
+    max-height: 400px;
+    overflow-y: auto; /* Pomerač za prelistavanje */
+    background: rgba(255, 255, 255, 0.1); /* Blaga providnost */
+    padding: 10px;
+    margin-bottom: 10px;
+}
+
+input, button {
+    padding: 10px;
+    margin: 5px;
+}
