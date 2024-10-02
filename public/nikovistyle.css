@@ -1,0 +1,31 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #000; /* Crna pozadina */
+    color: #fff; /* Bele boje za tekst */
+}
+
+#registrationForm, #loginForm {
+    border: 1px solid #fff; /* Bela ivica */
+    padding: 20px;
+    margin: 20px;
+    background-color: rgba(0, 0, 0, 0.8); /* Polu-prozirna pozadina */
+}
+
+input {
+    display: block;
+    margin: 10px 0;
+    padding: 10px;
+    width: 95%;
+}
+
+button {
+    padding: 10px;
+    background-color: #007BFF; /* Plava pozadina za dugmad */
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #0056b3; /* Tamnija plava na hover */
+}

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css"> <!-- Povezivanje CSS datoteke -->
+    <script src="chat.js" defer></script> <!-- Tvoj JavaScript -->
+    <title>Chat</title>
+</head>
+<body>
+    <div id="chatContainer">
+        <h1>Dobrodošli u Chat!</h1>
+        <button onclick="document.getElementById('registrationForm').style.display = 'block'">Registruj se</button>
+        <button onclick="document.getElementById('loginForm').style.display = 'block'">Prijavi se</button>
+    </div>
+
+    <!-- Forma za registraciju -->
+    <div id="registrationForm" style="display: none;">
+        <h2>Registracija</h2>
+        <input type="text" id="registerNik" placeholder="Izaberi nik" required>
+        <input type="password" id="registerPassword" placeholder="Lozinka" required>
+        <button onclick="registerUser()">Registruj se</button>
+    </div>
+
+    <!-- Forma za prijavu -->
+    <div id="loginForm" style="display: none;">
+        <h2>Prijava</h2>
+        <input type="text" id="loginNik" placeholder="Nik" required>
+        <input type="password" id="loginPassword" placeholder="Lozinka" required>
+        <button onclick="loginUser()">Prijavi se</button>
+    </div>
+</body>
+</html>
