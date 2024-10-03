@@ -1,0 +1,23 @@
+/* public/styles.css */
+
+body {
+    background-color: #000; /* Crna pozadina */
+    color: #fff; /* Bele boje teksta */
+    font-family: Arial, sans-serif; /* Postavite font */
+}
+
+#controls {
+    margin: 20px;
+}
+
+button {
+    background-color: #007BFF; /* Plava boja dugmadi */
+    color: white; /* Bele boje teksta dugmadi */
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #0056b3; /* Tamnija plava na hover */
+}
