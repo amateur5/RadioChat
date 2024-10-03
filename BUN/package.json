@@ -1,0 +1,24 @@
+{
+  "name": "bun-add-<package-name>",
+  "module": "bun add express",
+  "type": "module",
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "express": "^4.21.0"
+  }
+}
+{
+  "name": "your-project-name",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "bun run index.js"
+  },
+  "dependencies": {
+    "express": "^your-version-here"
+  }
+}
