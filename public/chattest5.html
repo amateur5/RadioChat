@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Aplikacija</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: black;
+            color: white;
+        }
+        #chatContainer {
+            display: flex;
+            height: 600px;
+            width: 800px;
+            border: 1px solid white;
+            overflow: hidden;
+        }
+        #chatArea {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid white;
+        }
+        #messages {
+            flex: 1;
+            padding: 10px;
+            overflow-y: auto;
+            background-color: black;
+        }
+        #inputContainer {
+            display: flex;
+            flex-direction: column;
+            padding: 10px;
+            background-color: black;
+        }
+        #toolbar {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        button {
+            background-color: gray;
+            color: white;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            flex: 1;
+            margin: 0 5px;
+        }
+        button:hover {
+            background-color: darkgray;
+        }
+        #guestList {
+            width: 150px;
+            padding: 10px;
+            background-color: black;
+            overflow-y: auto;
+        }
+        .guest {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            margin-bottom: 5px;
+        }
+        .colorSquare {
+            width: 12px;
+            height: 12px;
+            margin-right: 5px;
+            border: 1px solid white;
+            background-color: white;
+        }
+        #stylePanel {
+            display: none;
+            background-color: gray;
+            padding: 10px;
+            margin-top: 10px;
+        }
+        #messageInput {
+            height: 50px;
+            background-color: black;
+            border: 1px solid white;
+            color: white;
+            padding: 5px;
+            outline: none;
+        }
+        #virtualGuestControl {
+            display: none;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="chatContainer">
+        <div id="chatArea">
+            <div id="toolbar">
+                <button id="boldBtn">BOLD</button>
+                <button id="italicBtn">ITALIC</button>
+                <input type="color" id="colorPicker" value="#ffffff">
+                <button id="loginBtn">LOGIN</button>
+                <button id="mixerBtn">DJ Mixer</button>
+                <button id="changeNickBtn">Promeni Nik</button>
+            </div>
+            <div id="messages"></div>
+            <div id="inputContainer">
+                <div id="messageInput" contenteditable="true" oninput="updateMessagePreview()"></div>
+            </div>
+            <div id="virtualGuestControl">
+                <button id="addVirtualGuestBtn">Dodaj Virtuelnog Gosta</button>
+            </div>
+        </div>
+        <div id="guestList">
+            <div class="guest" id="radioGalaksijaGuest">
+                <div class="colorSquare" style="background-color: white;"></div>
+                Radio Galaksija
+            </div>
+        </div>
+    </div>
+
+    <div id="mixerPanel" style="display:none;">
+        <h3>DJ Mixer</h3>
+        <input type="file" id="musicUpload" accept="audio/*">
+        <audio id="audioPlayer" controls></audio>
+        <button id="closeMixer">Zatvori</button>
+    </div>
+
+    <div id="stylePanel">
+        <h4>Promeni Stil</h4>
+        <label>Boja:</label>
+        <input type="color" id="styleColorPicker" value="#ffffff">
+        <button id="boldStyleBtn">BOLD</button>
+        <button id="italicStyleBtn">ITALIC</button>
+        <button id="closeStylePanel">Zatvori</button>
+    </div>
+
+    <script>
+        const messagesDiv = document.getElementById('messages');
+        const messageInput = document.getElementById('messageInput');
+        const boldBtn = document.getElementById('boldBtn');
+        const italicBtn = document.getElementById('italicBtn');
+        const colorPicker = document.getElementById('colorPicker');
+        const loginBtn = document.getElementById('loginBtn');
+        const mixerBtn = document.getElementById('mixerBtn');
+        const mixerPanel = document.getElementById('mixerPanel');
+        const closeMixer = document.getElementById('closeMixer');
+        const changeNickBtn = document.getElementById('changeNickBtn');
+        const guestList = document.getElementById('guestList');
+        const virtualGuestControl = document.getElementById('virtualGuestControl');
+        const addVirtualGuestBtn = document.getElementById('addVirtualGuestBtn');
+        const stylePanel = document.getElementById('stylePanel');
+        const styleColorPicker = document.getElementById('styleColorPicker');
+        const boldStyleBtn = document.getElementById('boldStyleBtn');
+        const italicStyleBtn = document.getElementById('italicStyleBtn');
+        const closeStylePanel = document.getElementById('closeStylePanel');
+
+        let isBold = false;
+        let isItalic = false;
+        let messageColor = '#ffffff';
+        let currentGuest = null;
+        let guestNumber = 1;
+        let guestNick = `Gost ${guestNumber++}`;
+        const djNick = 'Radio Galaksija';
+        let isOwner = false;
+        const ownerPassword = 'marakana100-';
+        let virtualGuests = [{ nickname: djNick, color: '#ffffff', bold: false, italic: false }];
+
+        // Ovo učitava postojeće goste na početku
+        function loadGuests() {
+            guestList.innerHTML = ''; // Resetuje listu gostiju
+            virtualGuests.forEach(guest => {
+                const guestDiv = document.createElement('div');
+                guestDiv.classList.add('guest');
+                const colorSquare = document.createElement('div');
+                colorSquare.classList.add('colorSquare');
+                colorSquare.style.backgroundColor = guest.color; 
+                guestDiv.appendChild(colorSquare); 
+                guestDiv.textContent = guest.nickname; 
+                guestDiv.style.color = guest.color; 
+
+                guestDiv.style.fontWeight = guest.bold ? 'bold' : 'normal';
+                guestDiv.style.fontStyle = guest.italic ? 'italic' : 'normal';
+
+                guestDiv.addEventListener('click', () => {
+                    openGuestStylePanel(guest, guestDiv, colorSquare);
+                });
+
+                guestList.appendChild(guestDiv);
+            });
+        }
+
+        // Funkcija za dodavanje novog gosta
+        function addGuest(nickname) {
+            virtualGuests.push({ nickname, color: '#ffffff', bold: false, italic: false });
+            loadGuests(); // Ponovo učitaj goste
+        }
+
+        // Dodavanje osnovnih dugmadi za stil
+        boldBtn.addEventListener('click', () => {
+            isBold = !isBold;
+            boldBtn.style.backgroundColor = isBold ? '#ddd' : 'gray'; 
+            updateMessagePreview();
+        });
+
+        italicBtn.addEventListener('click', () => {
+            isItalic = !isItalic;
+            italicBtn.style.backgroundColor = isItalic ? '#ddd' : 'gray'; 
+            updateMessagePreview();
+        });
+
+        colorPicker.addEventListener('input', (e) => {
+            messageColor = e.target.value;
+            updateMessagePreview();
+            updateAllGuestDisplays(); // Promena boje za sve
+        });
+
+        function updateMessagePreview() {
+            messageInput.style.color = messageColor;
+            messageInput.style.fontWeight = isBold ? 'bold' : 'normal';
+            messageInput.style.fontStyle = isItalic ? 'italic' : 'normal';
+        }
+
+        // Otvara panel za stil gostiju
+        function openGuestStylePanel(guest, guestDiv, colorSquare) {
+            currentGuest = guest;
+            styleColorPicker.value = currentGuest.color; 
+
+            boldStyleBtn.style.backgroundColor = currentGuest.bold ? '#ddd' : 'gray';
+            italicStyleBtn.style.backgroundColor = currentGuest.italic ? '#ddd' : 'gray';
+            stylePanel.style.display = 'block'; 
+
+            styleColorPicker.oninput = function() {
+                currentGuest.color = this.value; 
+                colorSquare.style.backgroundColor = currentGuest.color; 
+                guestDiv.style.color = currentGuest.color; 
+                updateAllGuestDisplays(); 
+            };
+        }
+
+        boldStyleBtn.addEventListener('click', () => {
+            if (currentGuest) {
+                currentGuest.bold = !currentGuest.bold; 
+                boldStyleBtn.style.backgroundColor = currentGuest.bold ? '#ddd' : 'gray'; 
+                updateAllGuestDisplays(); 
+            }
+        });
+
+        italicStyleBtn.addEventListener('click', () => {
+            if (currentGuest) {
+                currentGuest.italic = !currentGuest.italic; 
+                italicStyleBtn.style.backgroundColor = currentGuest.italic ? '#ddd' : 'gray'; 
+                updateAllGuestDisplays(); 
+            }
+        });
+
+        closeStylePanel.addEventListener('click', () => {
+            stylePanel.style.display = 'none'; 
+        });
+
+        function updateAllGuestDisplays() {
+            const guestDivs = document.querySelectorAll('.guest');
+            guestDivs.forEach(guestDiv => {
+                const name = guestDiv.textContent.trim();
+                const guestData = virtualGuests.find(g => g.nickname === name);
+                if (guestData) {
+                    guestDiv.querySelector(".colorSquare").style.backgroundColor = guestData.color; 
+                    guestDiv.style.color = guestData.color; 
+                    guestDiv.style.fontWeight = guestData.bold ? 'bold' : 'normal';
+                    guestDiv.style.fontStyle = guestData.italic ? 'italic' : 'normal';
+                }
+            });
+        }
+
+        changeNickBtn.addEventListener('click', () => {
+            const newNick = prompt('Unesite novi nadimak:');
+            if (newNick && newNick.toLowerCase() !== 'radio galaksija') {
+                guestNick = newNick;
+                addGuest(guestNick);
+                alert(`Vaš novi nadimak je: ${guestNick}`);
+            } else if (newNick.toLowerCase() === 'radio galaksija') {
+                alert('Ne možete uzeti nadimak "Radio Galaksija".');
+            }
+        });
+
+        messageInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && messageInput.innerText.trim() !== '') {
+                const message = messageInput.innerText; 
+                const messageElement = document.createElement('div');
+
+                let currentNick = isOwner ? djNick : guestNick; 
+                messageElement.innerHTML = `<span style="color: ${messageColor}; font-weight: ${isBold ? 'bold' : 'normal'}; font-style: ${isItalic ? 'italic' : 'normal'}">${currentNick}: ${message}</span>`;
+                
+                messagesDiv.appendChild(messageElement);
+                messageInput.innerText = ''; 
+                updateMessagePreview(); 
+                messagesDiv.scrollTop = messagesDiv.scrollHeight; 
+            }
+        });
+
+        loginBtn.addEventListener('click', () => {
+            const username = prompt('Unesite svoje korisničko ime:');
+            const password = prompt('Unesite svoju lozinku:');
+            if (password === ownerPassword) {
+                isOwner = true;
+                alert(`Ulogovani ste kao: ${username}`);
+                virtualGuestControl.style.display = 'block'; 
+            } else {
+                alert('Neispravna lozinka!');
+            }
+        });
+
+        mixerBtn.addEventListener('click', () => {
+            mixerPanel.style.display = 'block'; 
+        });
+
+        closeMixer.addEventListener('click', () => {
+            mixerPanel.style.display = 'none'; 
+        });
+
+        addVirtualGuestBtn.addEventListener('click', () => {
+            const virtualNick = prompt('Unesite ime virtuelnog gosta:');
+            if (virtualNick) {
+                addGuest(virtualNick); 
+            }
+        });
+
+        loadGuests(); // Učitajte goste prilikom inicijalizacije
+    </script>
+</body>
+</html>
