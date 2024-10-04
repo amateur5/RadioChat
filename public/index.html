@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Aplikacija</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: black;
+            color: white;
+        }
+        #chatContainer {
+            display: flex;
+            height: 600px;
+            width: 800px;
+            border: 1px solid white;
+            overflow: hidden;
+        }
+        #chatArea {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid white;
+        }
+        #messages {
+            flex: 1;
+            padding: 10px;
+            overflow-y: auto;
+            background-color: black;
+        }
+        #inputContainer {
+            display: flex;
+            flex-direction: column;
+            padding: 10px;
+            background-color: black;
+        }
+        #toolbar {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        button {
+            background-color: gray;
+            color: white;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            flex: 1;
+            margin: 0 5px;
+        }
+        button:hover {
+            background-color: darkgray;
+        }
+        #guestList {
+            width: 150px;
+            padding: 10px;
+            background-color: black;
+            overflow-y: auto;
+        }
+        .guest {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            margin-bottom: 5px;
+        }
+        .colorSquare {
+            width: 12px;
+            height: 12px;
+            margin-right: 5px;
+            border: 1px solid white;
+        }
+        #stylePanel {
+            display: none;
+            background-color: gray;
+            padding: 10px;
+            margin-top: 10px;
+        }
+        #messageInput {
+            height: 50px;
+            background-color: black;
+            border: 1px solid white;
+            color: white;
+            padding: 5px;
+            outline: none;
+        }
+        #virtualGuestControl {
+            display: none;
+            margin-top: 10px;
+        }
+    </style>
+    <script src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+    <div id="chatContainer">
+        <div id="chatArea">
+            <div id="toolbar">
+                <button id="boldBtn">BOLD</button>
+                <button id="italicBtn">ITALIC</button>
+                <input type="color" id="colorPicker" value="#ffffff">
+                <button id="loginBtn">LOGIN</button>
+                <button id="mixerBtn">DJ Mixer</button>
+                <button id="changeNickBtn">Promeni Nik</button>
+            </div>
+            <div id="messages"></div>
+            <div id="inputContainer">
+                <div id="messageInput" contenteditable="true" oninput="updateMessagePreview()"></div>
+            </div>
+            <div id="virtualGuestControl">
+                <button id="addVirtualGuestBtn">Dodaj Virtuelnog Gosta</button>
+            </div>
+        </div>
+        <div id="guestList">
+            <div class="guest" id="radioGalaksijaGuest">
+                <div class="colorSquare" style="background-color: white;"></div>
+                Radio Galaksija
+            </div>
+        </div>
+    </div>
+
+    <div id="mixerPanel" style="display:none;">
+        <h3>DJ Mixer</h3>
+        <input type="file" id="musicUpload" accept="audio/*">
+        <audio id="audioPlayer" controls></audio>
+        <button id="closeMixer">Zatvori</button>
+    </div>
+
+    <div id="stylePanel">
+        <h4>Promeni Stil</h4>
+        <label>Boja:</label>
+        <input type="color" id="styleColorPicker" value="#ffffff">
+        <button id="boldStyleBtn">BOLD</button>
+        <button id="italicStyleBtn">ITALIC</button>
+        <button id="closeStylePanel">Zatvori</button>
+    </div>
+
+    <script>
+        const socket = io(); // Povezivanje na WebSocket
+
+        const messagesDiv = document.getElementById('messages');
+        const messageInput = document.getElementById('messageInput');
+        const boldBtn = document.getElementById('boldBtn');
+        const italicBtn = document.getElementById('italicBtn');
+        const colorPicker = document.getElementById('colorPicker');
+
+        let isBold = false;
+        let isItalic = false;
+        let messageColor = '#ffffff';
+        let guestNick = 'Gost';
+
+        function sendMessage() {
+            if (messageInput.innerText.trim() !== '') {
+                const message = messageInput.innerText; 
+                const formattedMessage = `<span style="color: ${messageColor}; font-weight: ${isBold ? 'bold' : 'normal'}; font-style: ${isItalic ? 'italic' : 'normal'}">${guestNick}: ${message}</span>`;
+                
+                // Emitujte poruku
+                socket.emit('chat message', formattedMessage);
+                
+                // Očisti input
+                messageInput.innerText = ''; 
+                updateMessagePreview();
+                messagesDiv.scrollTop = messagesDiv.scrollHeight; // Skrol u donji deo
+            }
+        }
+
+        messageInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault(); // Sprečava novačanje
+                sendMessage();
+            }
+        });
+
+        socket.on('chat message', (msg) => {
+            const messageElement = document.createElement('div');
+            messageElement.innerHTML = msg; // Dodaje primljenu poruku
+            messagesDiv.appendChild(messageElement);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight; // Skrol u donji deo
+        });
+
+        // Dugmad za stil
+        boldBtn.addEventListener('click', () => {
+            isBold = !isBold;
+            boldBtn.style.backgroundColor = isBold ? '#ddd' : 'gray'; 
+            updateMessagePreview();
+        });
+
+        italicBtn.addEventListener('click', () => {
+            isItalic = !isItalic;
+            italicBtn.style.backgroundColor = isItalic ? '#ddd' : 'gray'; 
+            updateMessagePreview();
+        });
+
+        colorPicker.addEventListener('input', (e) => {
+            messageColor = e.target.value;
+            updateMessagePreview();
+        });
+
+        function updateMessagePreview() {
+            messageInput.style.color = messageColor;
+            messageInput.style.fontWeight = isBold ? 'bold' : 'normal';
+            messageInput.style.fontStyle = isItalic ? 'italic' : 'normal';
+        }
+
+        changeNickBtn.addEventListener('click', () => {
+            const newNick = prompt('Unesite novi nadimak:');
+            if (newNick && newNick.trim() !== '') {
+                guestNick = newNick;
+                alert(`Vaš novi nadimak je: ${guestNick}`);
+            }
+        });
+
+        loginBtn.addEventListener('click', () => {
+            const username = prompt('Unesite svoje korisničko ime:');
+            const password = prompt('Unesite svoju lozinku:'); // Ova lozinka može biti korišćena kasnije
+            // Za sada, samo prikazujemo obaveštenje
+            alert(`Ulogovani ste kao: ${username}`);
+        });
+
+        // Ostatak vaših funkcija kao što su Mixer i kontrola virtuelnih gostiju
+        // Ove funkcije priznate u vašem prvom kodu, pa ih možete dodati ovde
+    </script>
+</body>
+</html>
