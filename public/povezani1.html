@@ -1,0 +1,18 @@
+const socket = io(); // Priključi se WebSocket-u
+
+// Emitovanje poruke kada se klikne dugme "Pošalji"
+document.getElementById('send-message').addEventListener('click', () => {
+    const messageInput = document.getElementById('message-input');
+    const message = messageInput.value;
+
+    if (message) {
+        socket.emit('send-message', message); // Emituj poruku serveru
+        messageInput.value = ''; // Očisti input nakon slanja
+    }
+});
+
+// Prihvatanje poruka sa servera
+socket.on('receive-message', (message) => {
+    const chatContainer = document.getElementById('chat-container');
+    chatContainer.innerHTML += `<div>${message}</div>`; // Prikazuje primljene poruke
+});
