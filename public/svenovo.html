@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Radio Galaksija</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: black;
+            color: white;
+            display: flex;
+            height: 100vh;
+            margin: 0;
+        }
+
+        #chatContainer {
+            width: 800px;
+            height: 600px;
+            margin: auto;
+            border: 2px solid white;
+            background-color: black;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* Toolbar */
+        #toolbar {
+            width: 100%;
+            height: 25px;
+            background-color: black;
+            box-shadow: 0 4px 8px rgba(255, 255, 255, 0.3);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin: 0;
+            border-bottom: 2px solid white;
+        }
+
+        .toolbarBtn {
+            padding: 5px;
+            background-color: black;
+            border: 2px solid white;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        .toolbarBtn:hover {
+            background-color: #666;
+        }
+
+        /* Message input field */
+        #messageInput {
+            width: 600px;
+            height: 50px;
+            margin: 10px auto;
+            display: flex;
+            background-color: black;
+            padding: 5px;
+            border-top: 2px solid white;
+            box-shadow: 0 0 10px white;
+        }
+
+        #messageInput textarea {
+            flex-grow: 1;
+            padding: 5px;
+            border-radius: 5px;
+            border: 2px solid white;
+            resize: none;
+            font-size: 16px;
+            background-color: black;
+            color: white;
+        }
+
+        /* Message area */
+        #messageArea {
+            flex-grow: 1;
+            padding: 10px;
+            overflow-y: auto;
+            font-size: 16px;
+            background-color: black;
+            border-bottom: 2px solid white;
+        }
+
+        /* Guest list */
+        #guestList {
+            position: absolute;
+            right: 0;
+            top: 25px;
+            width: 200px;
+            height: calc(100% - 100px);
+            border-left: 2px solid white;
+            overflow-y: auto;
+            background-color: black;
+            box-shadow: 0 0 10px white;
+        }
+
+        .guest {
+            padding: 5px;
+            border-bottom: 1px solid white;
+            color: white;
+        }
+
+        /* Color picker */
+        #colorPicker {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: black;
+            padding: 30px;
+            border: 2px solid white;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #colorPicker input[type="color"] {
+            margin-bottom: 10px;
+        }
+
+        #colorPicker button {
+            padding: 5px 10px;
+            background-color: black;
+            border: 2px solid white;
+            color: white;
+            cursor: pointer;
+        }
+
+        #colorPicker button:hover {
+            background-color: #666;
+        }
+
+        #overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: none;
+            z-index: 999;
+        }
+    </style>
+    <script src="/socket.io/socket.io.js"></script> <!-- Add Socket.IO -->
+
+<div id="chatContainer">
+    <div id="toolbar">
+        <button class="toolbarBtn" id="boldBtn">Bold</button>
+        <button class="toolbarBtn" id="italicBtn">Italic</button>
+        <button class="toolbarBtn" id="colorBtn">Color</button>
+        <button class="toolbarBtn" onclick="showLoginForm()">Login</button>
+    </div>
+    
+    <div id="messageArea"></div>
+    
+    <div id="messageInput">
+        <textarea rows="2" placeholder="Type your message..."></textarea>
+        <button class="toolbarBtn" id="sendBtn">Send</button>
+    </div>
+    
+    <div id="guestList"></div>
+</div>
+
+<div id="overlay"></div>
+
+<script>
+    // Your JavaScript functions go here
+    function showLoginForm() {
+        // Function to show login form
+    }
+    
+    function setColor() {
+        // Function to set color based on color input
+    }
+</script>
+
+</body>
+</html>
